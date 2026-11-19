@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lernwelt Buddhismus</title>
+<style>
+/* ===== FARBEN (hier leicht anpassbar) ===== */
+:root{--bg:#f6f4ef;--card:#fff;--text:#23221f;--muted:#6b685f;--accent:#8a2c2c;--gold:#c9a24a;--line:#e3dfd3;--ok:#2e7d4f;--bad:#b3261e;color-scheme:light;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17161a;--card:#222126;--text:#ece9e1;--muted:#a39f94;--accent:#e08a7a;--gold:#d9b25e;--line:#37353c;--ok:#6fcf97;--bad:#f2877f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17161a;--card:#222126;--text:#ece9e1;--muted:#a39f94;--accent:#e08a7a;--gold:#d9b25e;--line:#37353c;--ok:#6fcf97;--bad:#f2877f;color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:2px solid var(--gold);padding:10px 14px}
+.top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+h1{font-size:1.15rem;margin:0;color:var(--accent);flex:1 1 auto}
+input,textarea,select{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 10px;max-width:100%}
+textarea{width:100%}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:8px;padding:7px 12px}
+button:hover{border-color:var(--accent)}
+button.pri{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+button.bad{color:var(--bad)}
+nav{display:flex;gap:6px;margin-top:8px;overflow-x:auto}
+nav button{white-space:nowrap}
+nav button.on{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.bar{height:8px;background:var(--line);border-radius:6px;margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .3s}
+.pl{font-size:.8rem;color:var(--muted)}
+main{max-width:1000px;margin:0 auto;padding:16px 14px 40px}
+.layout{display:grid;gap:16px}
+@media(min-width:800px){.layout{grid-template-columns:230px 1fr}}
+.side{display:flex;flex-direction:column;gap:6px}
+.side button{text-align:left}
+.side button.on{border-color:var(--accent);background:var(--bg)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.goal{background:var(--bg);border-left:4px solid var(--gold);padding:8px 12px;border-radius:6px;color:var(--muted)}
+.fc{min-height:190px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:1.15rem;padding:24px;border:2px solid var(--gold);border-radius:16px;cursor:pointer;background:var(--card);user-select:none}
+.fc.back{background:var(--bg);border-color:var(--accent)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.opt{display:block;width:100%;text-align:left;margin:6px 0}
+.opt.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 18%,transparent)}
+.opt.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 18%,transparent)}
+.ed{border:1px dashed var(--gold);border-radius:10px;padding:10px;margin:10px 0}
+.ed input{width:100%;margin:3px 0}
+.img{margin:12px 0}.img img{display:block;max-width:100%;border-radius:10px}
+.modal{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;z-index:20}
+.modal>div{background:var(--card);padding:20px;border-radius:14px;width:min(360px,92vw)}
+.panel h3{color:var(--accent);margin:1.3em 0 .3em}.panel li{margin:4px 0}.merke{background:var(--bg);border-left:4px solid var(--gold);padding:8px 12px;border-radius:6px;margin:12px 0}
+.adm{background:color-mix(in srgb,var(--gold) 25%,transparent);padding:8px 14px;text-align:center;font-size:.9rem}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <h1>☸ Buddhismus – Infowelt <span class="pl">ER10 · LB 2</span></h1>
+    <input id="q" type="search" placeholder="Suchen …" aria-label="Suche" style="width:150px">
+    <button id="theme" title="Hell/Dunkel">🌓</button>
+    <button id="adminBtn">Bearbeitungsmodus</button>
+  </div>
+  <nav id="nav"></nav>
+  <div class="bar"><i id="pb"></i></div>
+  <div class="pl" id="pt"></div>
+</header>
+<div class="adm" id="admBar" hidden></div>
+<main id="main"></main>
+<div class="modal" id="modal" hidden><div>
+  <h3 style="margin-top:0">Bearbeitungsmodus</h3>
+  <input id="pw" type="password" placeholder="Passwort" style="width:100%">
+  <p id="pwErr" class="pl" style="color:var(--bad)"></p>
+  <div class="row"><button class="pri" data-a="login">Entsperren</button><button data-a="cancel">Abbrechen</button></div>
+</div></div>
+<input type="file" id="imp" accept=".json" hidden>
+<input type="file" id="imgIn" accept="image/*" hidden>
+
+<script>
+/* ============ EINSTELLUNGEN ============ */
+// Passwort hier ändern. Hinweis: Im Browser-Code ist das nur ein einfacher Sichtschutz, keine echte Sicherheit.
+const PASSWORD = "RentnerduGeileSau";
+const KEY = "lernwelt_buddhismus_v2";
+
+/* ============ STANDARD-INHALTE (aus den Stationen 3–7) ============ */
+// Jedes Modul: title, goal, text (Absätze durch Leerzeile getrennt), cards [{q,a}], quiz [{q,o:[Optionen],c:Index richtig}], images []
+const DEFAULT = {done:{}, notes:"", modules:[
+{id:"k1",title:"1 · Hinduismus – der Boden, aus dem der Buddhismus wächst",
+goal:"Du verstehst die Grundbegriffe, auf denen der Buddha aufbaut – und weißt, woran er Kritik übt.",
+text:`Der Buddhismus entsteht um 500 v. Chr. in Indien, mitten in einer Kultur, die religiös und philosophisch längst geprägt ist. Wir fassen diese Vorstellungen heute als „Hinduismus“ zusammen – ein Sammelbegriff, den ursprünglich Außenstehende (die britische Kolonialverwaltung) geprägt haben und der viele verschiedene Traditionen vereint.
+## Auf einen Blick
+- **Brahman:** der unpersönliche Weltgrund, aus dem alles hervorgeht und in den alles zurückkehrt
+- **Atman:** das „wahre Selbst“ jedes Menschen
+- **Samsara:** der Kreislauf der Wiedergeburten
+- **Karma:** das Wirkungsgesetz der Taten
+- **Moksha:** die Erlösung aus dem Kreislauf
+- **Kastenwesen (Varna):** die religiös begründete Gesellschaftsordnung
+## Wie hängen Atman und Brahman zusammen?
+Nach den Upanishaden (ca. 800–500 v. Chr.) sind beide im Innersten identisch: „Atman ist Brahman“. Wer das erkennt, erlangt Moksha. (Innerhalb des Hinduismus gibt es dazu verschiedene Deutungen; hier siehst du die für den Buddhismus wichtigste, monistische Linie.)
+## Wodurch wird die Wiedergeburt bestimmt?
+Jedes Lebewesen wird in Samsara wiedergeboren – und zwar in eine Existenzform, die sein Karma bestimmt: die Summe seiner Taten, Worte und Absichten in früheren Leben.
+## Ist Karma eine göttliche Strafe?
+Nein. Karma ist ein Wirkungsgesetz, wie Ursache und Folge: Gute Taten haben gute, schlechte Taten schlechte Folgen – auch ohne dass eine Gottheit belohnt oder straft. Es ist auch kein Schicksal, das von außen verhängt wird.
+## Wozu das Kastenwesen?
+Die Gesellschaft ist hierarchisch gestuft: Priester, Krieger, Händler/Bauern, Diener, dazu die „Unberührbaren“ außerhalb des Systems. Religiös begründet wird das mit dem Karma: Die Kaste gilt als Ausdruck des im vorigen Leben Erworbenen.
+> Merke: Der Buddha übernimmt Samsara, Karma und das Erlösungsziel – bestreitet aber einen unveränderlichen Atman und öffnet den Weg zur Erlösung unabhängig von Kaste und Geburt. Der Buddhismus ist Fortsetzung und Kritik zugleich.`,
+cards:[
+{q:"Wie hängen Atman und Brahman zusammen?",a:"Im Innersten sind sie identisch: „Atman ist Brahman“."},
+{q:"Was bestimmt die Art der Wiedergeburt?",a:"Das Karma – die Summe der Taten, Worte und Absichten früherer Leben."},
+{q:"Ist Karma eine göttliche Strafe?",a:"Nein, es ist ein Wirkungsgesetz (Ursache und Folge) ohne Belohnung oder Strafe durch eine Gottheit."},
+{q:"Was kritisiert der Buddha am Hinduismus?",a:"Den unveränderlichen Atman und die Bindung der Erlösung an Kaste und Geburt."}],
+quiz:[
+{q:"Wie heißt der individuelle Wesenskern im Hinduismus?",o:["Brahman","Atman","Samsara"],c:1},
+{q:"Moksha bedeutet …",o:["Kreislauf der Wiedergeburten","Erlösung aus dem Kreislauf der Wiedergeburten","Kastenordnung"],c:1},
+{q:"Was übernimmt der Buddha aus dieser Tradition?",o:["Atman und Kasten","Samsara, Karma und das Erlösungsziel"],c:1}],images:[]},
+
+{id:"k2",title:"2 · Siddhartha Gautama – Leben und Legende",
+goal:"Du kennst die Stationen der Buddha-Legende und weißt, warum man zwischen dem „historischen“ und dem „legendären“ Buddha unterscheidet.",
+text:`## Auf einen Blick
+- **Herkunft:** Sohn eines Shakya-Stammesführers im heutigen Grenzgebiet Indien/Nepal
+- **Prophezeiung:** großer Herrscher oder großer religiöser Lehrer
+- **Vier Ausfahrten:** Alter, Krankheit, Tod, Wandermönch
+- **Sechs Jahre Askese** – dann der Mittlere Weg
+- **Erleuchtung** mit 35 Jahren in Bodh Gaya
+- **Erste Lehrrede** in Sarnath, danach 45 Jahre Lehrtätigkeit, Tod mit ca. 80 (Parinirvana)
+## Wie wächst Siddhartha auf?
+Ein Seher sagt bei der Geburt voraus, er werde Herrscher oder religiöser Lehrer. Weil sein Vater Letzteres verhindern will, umgibt er ihn mit Luxus und schirmt ihn bewusst von allem Leid ab. Siddhartha heiratet Yasodhara und bekommt einen Sohn, Rahula.
+## Was bedeuten die vier Ausfahrten?
+Draußen begegnet er nacheinander einem alten Menschen, einem Kranken, einer Leiche und einem Wandermönch. Die ersten drei zeigen ihm erstmals Alter, Krankheit und Tod als unausweichlich – das, was der Buddhismus Dukkha (Leiden) nennt. Die vierte zeigt einen möglichen Weg. Deshalb gelten sie als Wendepunkt: Er verlässt Palast und Familie (der „große Auszug“).
+## Der Mittlere Weg
+Sechs Jahre lebt er als extremer Asket, fast bis zum Verhungern – ohne Befreiung. Er erkennt: Weder Luxus noch Selbstkasteiung führen zum Ziel. Der Mittlere Weg liegt zwischen diesen Extremen.
+## Erleuchtung
+In tiefer Meditation unter dem Bodhi-Baum widersteht er den Versuchungen des Dämons Mara und wird „erwacht“. **Buddha** („der Erwachte“) ist ein Ehrentitel, kein Eigenname. Die erste Lehrrede im Wildpark von Sarnath vor fünf Asketengefährten gilt als Geburtsstunde der Sangha.
+## Historisch oder legendär?
+Die Texte entstanden erst Jahrhunderte nach seinem Tod: zunächst mündlich überliefert, schriftlich im Pali-Kanon ab etwa dem 1. Jh. v. Chr. Deshalb sind Lebensdaten umstritten (Tradition: ca. 563–483 v. Chr.; neuere Forschung eher später). Es sind religiös gedeutete Legenden, keine modernen Biografien – möglicherweise mit realem Kern.
+> Merke: Der „legendäre“ Buddha ist der überlieferte, religiös gedeutete; der „historische“ der, den die Forschung kritisch aus den späten Quellen zu rekonstruieren versucht. Die Quellenlage, nicht die Zeit vor Christus, macht genaue Fakten schwierig.`,
+cards:[
+{q:"Die vier Ausfahrten in Reihenfolge?",a:"Alter Mensch → Kranker → Leiche → Wandermönch."},
+{q:"Was bedeutet „Buddha“?",a:"„Der Erwachte“ – ein Ehrentitel."},
+{q:"Was ist der Mittlere Weg?",a:"Der Weg zwischen Luxus und radikaler Selbstkasteiung."},
+{q:"Erste Lehrrede – wo und vor wem?",a:"Im Wildpark von Sarnath vor fünf ehemaligen Asketengefährten."},
+{q:"Warum sind Fakten über Siddhartha schwer zu belegen?",a:"Die Quellen entstanden Jahrhunderte später (erst mündlich, dann Pali-Kanon) und sind religiös gedeutet."}],
+quiz:[
+{q:"Wo erlangte Siddhartha die Erleuchtung?",o:["Sarnath","Bodh Gaya","Lumbini"],c:1},
+{q:"Richtig oder falsch: Der Buddha erreichte die Erleuchtung durch möglichst strenge Askese.",o:["Richtig","Falsch – Askese führte nicht zum Ziel"],c:1},
+{q:"Wer versuchte ihn in der Meditation?",o:["Mara","Rahula","Amida"],c:0}],images:[]},
+
+{id:"k3",title:"3 · Die Lehre – Vier Edle Wahrheiten und Achtfacher Pfad",
+goal:"Du kannst die Vier Edlen Wahrheiten erklären und weißt, wie der Achtfache Pfad aufgebaut ist.",
+text:`Der Kern der Lehre passt in vier Sätze. Sie funktionieren wie eine ärztliche Diagnose: Befund, Ursache, Prognose, Therapie.
+## Die Vier Edlen Wahrheiten
+- **1. Dukkha (Befund):** Das Dasein ist von Leiden und Unbefriedigtsein geprägt – mehr als nur „Schmerz“ (Altern, Krankheit, Tod, Trennung, unerfülltes Verlangen).
+- **2. Samudaya (Ursache):** Tanha, der „Durst“ – das unstillbare Verlangen. Es wurzelt in Avidya, der Unwissenheit über die Wirklichkeit.
+- **3. Nirodha (Prognose):** Das Leiden kann enden, wenn das Verlangen überwunden ist: Nirvana, „Verlöschen“.
+- **4. Magga (Therapie):** Der Weg dorthin ist der Achtfache Pfad.
+## Warum ist Tanha die Ursache?
+Wer ständig nach Genuss, Fortbestehen oder Nichtsein dürstet, wird nie erfüllt. Jedes erfüllte Verlangen weckt das nächste – das hält das Leiden am Laufen.
+## Der Achtfache Pfad
+Drei Übungsbereiche:
+- **Weisheit (Prajna):** Rechte Erkenntnis, Rechtes Denken
+- **Sittlichkeit (Sila):** Rechte Rede, Rechtes Handeln, Rechter Lebenserwerb
+- **Sammlung (Samadhi):** Rechte Anstrengung, Rechte Achtsamkeit, Rechte Sammlung
+## Stufenleiter?
+Nein. Die acht Glieder werden **parallel** geübt und verstärken sich gegenseitig – wie acht Muskeln, die man gleichzeitig trainiert. „Rechte Achtsamkeit“ heißt: klares, unmittelbares Gewahrsein von Körper, Gefühl und Geist – ähnlich dem, was wir von „Mindfulness“ kennen, nur eingebettet in einen Weg.
+## Warum „Mittlerer Weg“?
+Der Pfad ist weder Weltflucht noch Weltgenuss, sondern disziplinierte, lebensbejahende Übung in Weisheit, Ethik und Meditation.
+> Merke: Leiden – Ursache – Ende – Weg. Der Pfad wird gleichzeitig geübt, nicht Schritt für Schritt abgehakt.`,
+cards:[
+{q:"Die Vier Edlen Wahrheiten in Stichworten?",a:"Leiden – Ursache (Verlangen) – Aufhebung (Nirvana) – Weg (Achtfacher Pfad)."},
+{q:"Was ist laut 2. Wahrheit die Ursache des Leidens?",a:"Tanha, der unstillbare „Durst“ nach Genuss, Fortbestehen oder Nichtsein."},
+{q:"Rechte Rede, Rechtes Handeln, Rechter Lebenserwerb gehören zu …?",a:"Sittlichkeit (Sila)."},
+{q:"Muss der Pfad der Reihe nach durchlaufen werden?",a:"Nein – falsch. Die Glieder werden parallel geübt."},
+{q:"Warum heißt der Pfad „Mittlerer Weg“?",a:"Er ist weder Weltflucht noch Weltgenuss."}],
+quiz:[
+{q:"Wie wird der Achtfache Pfad geübt?",o:["Schritt für Schritt","Parallel, sich gegenseitig verstärkend"],c:1},
+{q:"Rechte Achtsamkeit gehört zum Bereich …",o:["Weisheit","Sittlichkeit","Sammlung"],c:2},
+{q:"Avidya bedeutet …",o:["Unwissenheit","Verlangen","Verlöschen"],c:0}],images:[]},
+
+{id:"k4",title:"4 · Nicht-Selbst, Wiedergeburt und Nirvana",
+goal:"Du verstehst, warum der Buddhismus eine unveränderliche Seele bestreitet und wie er trotzdem Wiedergeburt denkt.",
+text:`## Anatta – es gibt kein festes Ich
+Der Hinduismus geht vom unveränderlichen Atman aus. Der Buddha lehrt das Gegenteil: Es gibt kein unveränderliches, dauerhaftes „Ich“. Was wir als Person erleben, besteht aus fünf ständig veränderlichen Faktoren, den **Skandhas**:
+- Körperlichkeit
+- Gefühl
+- Wahrnehmung
+- Geistesformationen
+- Bewusstsein
+Sie beschreiben nicht „Eigenschaften“ eines festen Ichs, sondern sind das Ich-Erleben selbst. Keiner besteht allein oder dauerhaft: Alles entsteht und vergeht in gegenseitiger Bedingtheit („bedingtes Entstehen“).
+## Die drei Daseinsmerkmale
+**Anicca** (Vergänglichkeit), **Dukkha** (Leiden/Unbefriedigtheit), **Anatta** (Nicht-Selbst).
+## Wiedergeburt ohne Seele?
+Das Bild der Kerze: Zündet man eine Kerze an einer anderen an, springt keine „Substanz“ über – und doch hängen beide Flammen ursächlich zusammen. So wandert keine Seele, sondern ein **Strom aus Ursachen und Wirkungen** (geprägt durch Karma) weiter. Darum sagt man „Wiedergeburt“, nicht „Seelenwanderung“ oder „Reinkarnation“.
+## Nirvana
+Wörtlich „Verlöschen“: das Erlöschen der Feuer von Gier, Hass und Verblendung. Es ist kein Ort, an den man nach dem Tod kommt. Die Texte beschreiben es fast nur negativ, weil es sich nicht wie ein gewöhnlicher Zustand fassen lässt. Metaphysische Fragen ließ der Buddha bewusst offen – sie führen vom Ziel weg: dem Ende des Leidens hier und jetzt.
+> Merke: Der Tod ist weder Vernichtung eines Ichs noch Übergang ins ewige Leben, sondern ein Übergangspunkt im Ursachenstrom, der erst im Parinirvana zur Ruhe kommt.`,
+cards:[
+{q:"Was bedeutet Anatta?",a:"Nicht-Selbst: kein unveränderliches, dauerhaftes Ich."},
+{q:"Nenne die fünf Skandhas.",a:"Körperlichkeit, Gefühl, Wahrnehmung, Geistesformationen, Bewusstsein."},
+{q:"Die drei Daseinsmerkmale?",a:"Anicca, Dukkha, Anatta."},
+{q:"Wiedergeburt ohne Seele – wie?",a:"Wie die Flamme von Kerze zu Kerze: kein Stoff wandert, aber ein Ursache-Wirkungs-Strom setzt sich fort."},
+{q:"Ist Nirvana ein Ort?",a:"Nein, es ist das Verlöschen von Gier, Hass und Verblendung."}],
+quiz:[
+{q:"Nirvana ist …",o:["ein Ort nach dem Tod","das Verlöschen von Gier, Hass und Verblendung"],c:1},
+{q:"Warum „bedingtes Entstehen“?",o:["Alles entsteht und vergeht in gegenseitiger Abhängigkeit","Nur Gutes bedingt Wiedergeburt"],c:0},
+{q:"Welcher Begriff passt besser zum Buddhismus?",o:["Seelenwanderung","Wiedergeburt"],c:1}],images:[]},
+
+{id:"k5",title:"5 · Ethik und Praxis – Silas, Sangha, Meditation",
+goal:"Du kennst die fünf Silas, die Rolle von Sangha und Meditation und weißt, warum Mitgefühl mehr als eine zusätzliche Regel ist.",
+text:`## Die fünf Silas
+Grundlage für Laien (alle, die keinem Kloster angehören):
+- kein Lebewesen töten
+- nichts nehmen, was nicht gegeben wurde
+- keine sexuelle Verfehlung
+- nicht lügen
+- keine berauschenden Mittel, die den Geist trüben
+Sie sind **Selbstverpflichtungen**, keine von außen überwachten Gebote. Mönche und Nonnen folgen der umfangreicheren **Vinaya** (Theravada: über 200 Regeln).
+## Warum Mitgefühl keine bloße Regel ist
+Ahimsa (Gewaltlosigkeit) folgt aus dem Menschenbild: Wer kein isoliertes Selbst hat (Anatta) und wie alle Wesen leidet (Dukkha), für den ist die Grenze zwischen „Ich“ und „anderen“ weniger absolut, als sie sich anfühlt. Mitgefühl (Karuna) und liebende Güte (Metta) sind also keine Zusatzvorschrift, sondern folgen aus der Sicht auf die Wirklichkeit.
+## Sangha und Laien
+Ein Geben und Nehmen: Laien versorgen die Ordinierten materiell (**Dana**, Freigebigkeit); die Ordinierten geben Unterweisung und ein gelebtes Vorbild.
+## Zwei Formen der Meditation
+- **Samatha:** Ruhe- und Konzentrationsmeditation – beruhigt und sammelt den Geist
+- **Vipassana:** Einsichtsmeditation – erkennt die drei Daseinsmerkmale am eigenen Erleben
+## Buddhistische Meditation vs. „Mindfulness“
+Ursprünglich ist Meditation Teil eines Erkenntnis- und Befreiungswegs, eingebettet in Ethik und Weisheit. Westliche Mindfulness-Kurse lösen die Technik oft heraus und nutzen sie zur Entspannung – dadurch ändert sich, was die Übung bedeuten soll.
+> Merke: Mitgefühl folgt aus Anatta; Meditation ohne Ethik und Weisheit ist nur ein Teil des Weges.`,
+cards:[
+{q:"Die fünf Silas?",a:"Nicht töten, nicht stehlen, keine sexuelle Verfehlung, nicht lügen, keine berauschenden Mittel."},
+{q:"Silas vs. Vinaya?",a:"Silas: Selbstverpflichtung der Laien. Vinaya: viel umfangreicheres Regelwerk für Mönche und Nonnen."},
+{q:"Was ist Dana?",a:"Freigebigkeit: Laien versorgen die Sangha materiell."},
+{q:"Samatha vs. Vipassana?",a:"Samatha: Ruhe/Konzentration. Vipassana: Einsicht in die drei Daseinsmerkmale."},
+{q:"Warum folgt Mitgefühl aus Anatta?",a:"Weil kein isoliertes Selbst existiert und alle leiden, ist die Grenze Ich–Andere weniger absolut."}],
+quiz:[
+{q:"Sind Vinaya und die fünf Silas identisch?",o:["Ja","Nein – die Vinaya ist umfangreicher und für Ordinierte"],c:1},
+{q:"Was bedeutet Ahimsa?",o:["Freigebigkeit","Gewaltlosigkeit","Einsicht"],c:1},
+{q:"Meditation im ursprünglichen Kontext ist …",o:["Entspannungstraining","Teil eines Erkenntnis- und Befreiungswegs"],c:1}],images:[]},
+
+{id:"k6",title:"6 · Buddhismus und Christentum im Dialog",
+goal:"Du kannst beide Religionen am Beispiel „Erlösung“ aufeinander beziehen und respektvoll eigene Gedanken formulieren.",
+text:`Ein Vergleich ganzer Religionen bleibt oberflächlich. Deshalb wählen wir ein Beispiel: die **Erlösung**, denn dort bündeln sich Ich- und Leidensverständnis.
+## Auf einen Blick
+- **Buddhismus:** Befreiung durch eigene Anstrengung auf dem Achtfachen Pfad; jede/r ist „seine eigene Zuflucht“
+- **Christentum:** Erlösung aus Gnade, als Geschenk Gottes
+- **Ich im Buddhismus:** vergänglich, prozesshaft (Anatta)
+- **Ich im Christentum:** von Gott geschaffenes, geliebtes Gegenüber
+## Buddhismus: eigene Anstrengung
+Leiden entsteht aus Verlangen (Tanha), das aus Unwissenheit über das Ich kommt. Man überwindet beides durch den Achtfachen Pfad und erreicht Nirvana. Niemand kann den Weg für einen anderen gehen.
+## Christentum: Gnade
+Nach Epheser 2,8–9 wird der Mensch durch Gottes zuvorkommendes Handeln und Glauben gerettet, nicht durch eigene Leistung oder gute Taten.
+## Aber Vorsicht vor Schwarz-Weiß
+Im Amida-Buddhismus (Reines-Land-Buddhismus) spielt das Vertrauen auf die „andere Kraft“ Amidas eine große Rolle. Und im Christentum wird das Verhältnis von Gnade und eigenem Tun seit Jahrhunderten diskutiert. Der Gegensatz ist also nicht in allen Richtungen gleich stark.
+## Was heißt respektvoller Umgang?
+Andere Religionen ernst nehmen und Unterschiede verstehen. „Ist doch eh alles dasselbe“ ignoriert die verschiedenen Überzeugungen und ist deshalb gerade nicht respektvoll.
+> Merke: Ein Vergleich an einem Beispiel ersetzt nicht die ganze Wahrheit einer Religion, ermöglicht aber ein ehrliches Gespräch.`,
+cards:[
+{q:"Was bedeutet „Erlösung aus Gnade“ (Eph 2,8–9)?",a:"Rettung durch Gottes Handeln und Glauben, nicht durch eigene Werke – ein Geschenk."},
+{q:"Wie wird man im Buddhismus vom Leiden frei?",a:"Durch eigene Anstrengung auf dem Achtfachen Pfad (Verlangen und Unwissenheit überwinden → Nirvana)."},
+{q:"Unterschied im Ich-Verständnis?",a:"Buddhismus: vergänglich, kein festes Selbst. Christentum: von Gott geschaffenes, geliebtes Individuum."},
+{q:"Was relativiert den Kontrast Anstrengung vs. Gnade?",a:"Der Amida-Buddhismus: Vertrauen auf Amidas Hilfe steht im Mittelpunkt."}],
+quiz:[
+{q:"Beide Religionen verstehen Erlösung als Ergebnis eigener Anstrengung. Richtig?",o:["Richtig","Falsch – im Christentum ist sie Gnade"],c:1},
+{q:"Welche Richtung betont Vertrauen auf eine „andere Kraft“?",o:["Amida-Buddhismus","Vipassana","Vinaya"],c:0},
+{q:"„Ist doch eh alles dasselbe“ ist …",o:["respektvoll","nicht respektvoll, weil Unterschiede ignoriert werden"],c:1}],images:[]}
+]};
+
+/* ============ ZUSTAND ============ */
+let S; try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!S||!S.modules) S=JSON.parse(JSON.stringify(DEFAULT));
+const ui={view:"learn",mi:0,card:0,flip:false,scope:"all",admin:false,imgTarget:-1,qa:{}};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=s=>document.querySelector(s);
+const esc=t=>String(t??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const mod=()=>S.modules[ui.mi]||S.modules[0];
+// Setzt einen Wert über einen Pfad wie "modules|0|cards|2|q"
+function setP(path,v){const p=path.split("|");let o=S;for(let i=0;i<p.length-1;i++)o=o[p[i]];o[p[p.length-1]]=v;save()}
+try{const t=localStorage.getItem(KEY+"_theme");if(t)document.documentElement.dataset.theme=t}catch(e){}
+
+/* ============ RENDERN ============ */
+// Einfache Formatierung: "## Überschrift", "- Aufzählung", "> Merksatz", **fett**; sonst Absatz
+function fmt(t){const inl=s=>esc(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");let h="",ul=false;
+ for(const l of t.split("\n")){const li=l.startsWith("- ");if(ul&&!li){h+="</ul>";ul=false}
+  if(li){if(!ul){h+="<ul>";ul=true}h+="<li>"+inl(l.slice(2))+"</li>"}
+  else if(l.startsWith("## "))h+="<h3>"+inl(l.slice(3))+"</h3>";
+  else if(l.startsWith("> "))h+='<div class="merke">'+inl(l.slice(2))+"</div>";
+  else if(l.trim())h+="<p>"+inl(l)+"</p>"}
+ return h+(ul?"</ul>":"")}
+
+const TABS=[["learn","📖 Wissen"],["cards","🗂 Karteikarten"],["quiz","❓ Quiz"],["notes","📝 Notizen"]];
+function render(){
+  $("#nav").innerHTML=TABS.map(([k,l])=>`<button class="${ui.view===k?"on":""}" data-a="view" data-v="${k}">${l}</button>`).join("");
+  const n=S.modules.filter(m=>S.done[m.id]).length,t=S.modules.length;
+  $("#pb").style.width=(t?n/t*100:0)+"%";$("#pt").textContent=`Fortschritt: ${n} von ${t} Modulen bearbeitet`;
+  $("#adminBtn").textContent=ui.admin?"Bearbeitung beenden":"Bearbeitungsmodus";
+  const ab=$("#admBar");ab.hidden=!ui.admin;
+  if(ui.admin)ab.innerHTML=`✏️ Bearbeitungsmodus – Änderungen werden automatisch gespeichert &nbsp;
+   <button data-a="addMod">+ Modul</button> <button data-a="export">Export (JSON)</button> <button data-a="import">Import</button> <button class="bad" data-a="reset">Zurücksetzen</button>`;
+  const v=ui.view;
+  $("#main").innerHTML=v==="learn"?learn():v==="cards"?cards():v==="quiz"?quiz():v==="notes"?notes():search();
+}
+const sideList=()=>`<div class="side">${S.modules.map((m,i)=>`<button class="${i===ui.mi?"on":""}" data-a="mod" data-i="${i}">${S.done[m.id]?"✅":"⬜"} ${esc(m.title)}</button>`).join("")}</div>`;
+
+function learn(){
+  const m=mod(),i=ui.mi,A=ui.admin;
+  const paras=fmt(m.text);
+  const imgs=(m.images||[]).map((im,k)=>`<div class="img" style="text-align:${im.al}"><img src="${im.src}" style="width:${im.w}%;display:inline-block" alt="">
+   ${A?`<div class="row imgrow" style="justify-content:${im.al==="left"?"flex-start":im.al==="right"?"flex-end":"center"}">Größe <input type="range" min="10" max="100" value="${im.w}" data-p="modules|${i}|images|${k}|w" data-num data-img>
+   <button data-a="imgal" data-k="${k}" data-al="left">⬅</button><button data-a="imgal" data-k="${k}" data-al="center">↔</button><button data-a="imgal" data-k="${k}" data-al="right">➡</button>
+   <button data-a="imgmv" data-k="${k}" data-d="-1">▲</button><button data-a="imgmv" data-k="${k}" data-d="1">▼</button><button class="bad" data-a="imgdel" data-k="${k}">🗑</button></div>`:""}</div>`).join("");
+  let body;
+  if(A){
+    body=`<input data-p="modules|${i}|title" value="${esc(m.title)}" style="width:100%;font-weight:700"><textarea data-p="modules|${i}|goal" rows="3">${esc(m.goal)}</textarea>
+    <p class="pl">Format: „## Überschrift“, „- Aufzählung“, „&gt; Merksatz“, **fett**.</p><textarea data-p="modules|${i}|text" rows="14">${esc(m.text)}</textarea>
+    <div class="row"><button data-a="addImg">🖼 Bild hinzufügen</button><button class="bad" data-a="delMod">Modul löschen</button></div>${imgs}
+    <h3>Karteikarten</h3>${m.cards.map((c,k)=>`<div class="ed"><input data-p="modules|${i}|cards|${k}|q" value="${esc(c.q)}" placeholder="Frage"><input data-p="modules|${i}|cards|${k}|a" value="${esc(c.a)}" placeholder="Antwort"><button class="bad" data-a="delCard" data-k="${k}">Löschen</button></div>`).join("")}<button data-a="addCard">+ Karteikarte</button>
+    <h3>Quizfragen (Multiple Choice)</h3>${m.quiz.map((q,k)=>`<div class="ed"><input data-p="modules|${i}|quiz|${k}|q" value="${esc(q.q)}" placeholder="Frage">
+      ${q.o.map((o,j)=>`<input data-p="modules|${i}|quiz|${k}|o|${j}" value="${esc(o)}" placeholder="Option ${j+1}">`).join("")}
+      Richtig: <select data-p="modules|${i}|quiz|${k}|c" data-num>${q.o.map((_,j)=>`<option value="${j}" ${j===q.c?"selected":""}>Option ${j+1}</option>`).join("")}</select>
+      <button data-a="addOpt" data-k="${k}">+ Option</button> <button class="bad" data-a="delQ" data-k="${k}">Löschen</button></div>`).join("")}<button data-a="addQ">+ Quizfrage</button>`;
+  }else body=`<h2 style="color:var(--accent);margin-top:0">${esc(m.title)}</h2><p class="goal"><b>Lernziel:</b> ${esc(m.goal)}</p>${paras}${imgs}
+    <div class="row"><button class="pri" data-a="done">${S.done[m.id]?"✅ Bearbeitet (zurücksetzen)":"Als bearbeitet markieren"}</button>
+    <button data-a="view" data-v="cards" data-scope="${m.id}">🗂 Karteikarten</button><button data-a="view" data-v="quiz" data-scope="${m.id}">❓ Quiz</button></div>`;
+  return `<div class="layout">${sideList()}<div class="panel">${body}</div></div>`;
+}
+
+const scoped=()=>ui.scope==="all"?S.modules:S.modules.filter(m=>m.id===ui.scope);
+const scopeSel=()=>`<select data-a="scope"><option value="all">Alle Module</option>${S.modules.map(m=>`<option value="${m.id}" ${ui.scope===m.id?"selected":""}>${esc(m.title)}</option>`).join("")}</select>`;
+
+function cards(){
+  const all=scoped().flatMap(m=>m.cards);
+  if(!all.length)return `<div class="panel">${scopeSel()}<p>Keine Karteikarten vorhanden.</p></div>`;
+  ui.card=Math.min(ui.card,all.length-1);const c=all[ui.card];
+  return `<div class="panel">${scopeSel()}<p class="pl">Karte ${ui.card+1} / ${all.length} – zum Umdrehen antippen</p>
+  <div class="fc ${ui.flip?"back":""}" data-a="flip">${esc(ui.flip?c.a:c.q)}</div>
+  <div class="row"><button data-a="prev">◀ Zurück</button><button data-a="next">Weiter ▶</button><button data-a="shuffle">🔀 Mischen</button></div></div>`;
+}
+
+function quiz(){
+  const qs=scoped().flatMap(m=>m.quiz.map(q=>({q,id:m.id+q.q})));
+  let ok=0,an=0;qs.forEach(x=>{if(ui.qa[x.id]!==undefined){an++;if(ui.qa[x.id]===x.q.c)ok++}});
+  return `<div class="panel">${scopeSel()} <button data-a="qreset">Neu starten</button><p><b>Punkte: ${ok} / ${qs.length}</b> (${an} beantwortet)</p>
+  ${qs.map((x,n)=>{const a=ui.qa[x.id];return `<div><p><b>${n+1}. ${esc(x.q.q)}</b></p>${x.q.o.map((o,j)=>`<button class="opt ${a!==undefined?(j===x.q.c?"ok":j===a?"no":""):""}" data-a="ans" data-id="${esc(x.id)}" data-j="${j}" ${a!==undefined?"disabled":""}>${esc(o)}</button>`).join("")}</div>`}).join("")||"<p>Keine Fragen vorhanden.</p>"}</div>`;
+}
+
+function notes(){return `<div class="panel"><h2 style="margin-top:0">Meine Notizen</h2><p class="pl">Werden automatisch im Browser gespeichert.</p><textarea rows="16" data-p="notes">${esc(S.notes)}</textarea></div>`}
+
+function search(){
+  const t=$("#q").value.trim().toLowerCase();
+  const hits=S.modules.map((m,i)=>({m,i})).filter(({m})=>(m.title+m.text+m.goal+m.cards.map(c=>c.q+c.a).join(" ")).toLowerCase().includes(t));
+  return `<div class="panel"><h2 style="margin-top:0">Suche: „${esc(t)}“</h2>${hits.map(({m,i})=>`<p><button data-a="mod" data-i="${i}">${esc(m.title)}</button></p>`).join("")||"<p>Keine Treffer.</p>"}</div>`;
+}
+
+/* ============ EVENTS ============ */
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-a]");if(!b||b.tagName==="SELECT")return;
+  const a=b.dataset.a,m=mod(),i=ui.mi,k=+b.dataset.k;let re=true;
+  switch(a){
+    case"view":ui.view=b.dataset.v;ui.card=0;ui.flip=false;if(b.dataset.scope)ui.scope=b.dataset.scope;$("#q").value="";break;
+    case"mod":ui.mi=+b.dataset.i;ui.view="learn";break;
+    case"done":S.done[m.id]=!S.done[m.id];save();break;
+    case"flip":ui.flip=!ui.flip;break;
+    case"next":ui.card++;ui.flip=false;{const n=scoped().flatMap(x=>x.cards).length;if(ui.card>=n)ui.card=0}break;
+    case"prev":{const n=scoped().flatMap(x=>x.cards).length;ui.card=(ui.card-1+n)%n;ui.flip=false}break;
+    case"shuffle":scoped().forEach(x=>x.cards.sort(()=>Math.random()-.5));ui.card=0;ui.flip=false;save();break;
+    case"ans":ui.qa[b.dataset.id]=+b.dataset.j;break;
+    case"qreset":ui.qa={};break;
+    case"login":if($("#pw").value===PASSWORD){ui.admin=true;$("#modal").hidden=true}else{$("#pwErr").textContent="Falsches Passwort.";re=false}break;
+    case"cancel":$("#modal").hidden=true;re=false;break;
+    case"addMod":S.modules.push({id:"m"+Date.now(),title:"Neues Modul",goal:"",text:"",cards:[],quiz:[],images:[]});ui.mi=S.modules.length-1;save();break;
+    case"delMod":if(S.modules.length>1&&confirm("Modul wirklich löschen?")){S.modules.splice(i,1);ui.mi=0;save()}break;
+    case"addCard":m.cards.push({q:"",a:""});save();break;
+    case"delCard":m.cards.splice(k,1);save();break;
+    case"addQ":m.quiz.push({q:"",o:["",""],c:0});save();break;
+    case"addOpt":m.quiz[k].o.push("");save();break;
+    case"delQ":m.quiz.splice(k,1);save();break;
+    case"addImg":$("#imgIn").click();re=false;break;
+    case"imgal":m.images[k].al=b.dataset.al;save();break;
+    case"imgmv":{const d=+b.dataset.d,j=k+d;if(m.images[j]){[m.images[k],m.images[j]]=[m.images[j],m.images[k]];save()}}break;
+    case"imgdel":m.images.splice(k,1);save();break;
+    case"export":{const l=document.createElement("a");l.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:"application/json"}));l.download="lernwelt-backup.json";l.click();re=false}break;
+    case"import":$("#imp").click();re=false;break;
+    case"reset":if(confirm("Alle Änderungen verwerfen und Standardinhalte laden?")){S=JSON.parse(JSON.stringify(DEFAULT));ui.mi=0;save()}break;
+  }
+  if(re)render();
+});
+document.addEventListener("change",e=>{if(e.target.dataset.a==="scope"){ui.scope=e.target.value;ui.card=0;ui.flip=false;render()}
+  else if(e.target.dataset.p&&e.target.tagName==="SELECT"){setP(e.target.dataset.p,+e.target.value)}});
+// Eingaben (Texte, Slider) werden live gespeichert, ohne neu zu rendern (Cursor bleibt erhalten)
+document.addEventListener("input",e=>{const t=e.target,p=t.dataset.p;if(!p||t.tagName==="SELECT")return;
+  setP(p,"num" in t.dataset?+t.value:t.value);
+  if("img" in t.dataset)t.closest(".img").querySelector("img").style.width=t.value+"%"});
+$("#q").addEventListener("input",e=>{ui.view=e.target.value.trim()?"search":"learn";render()});
+$("#adminBtn").onclick=()=>{if(ui.admin){ui.admin=false;render()}else{$("#pw").value="";$("#pwErr").textContent="";$("#modal").hidden=false;$("#pw").focus()}};
+$("#pw").addEventListener("keydown",e=>{if(e.key==="Enter")document.querySelector('[data-a="login"]').click()});
+$("#theme").onclick=()=>{const d=document.documentElement,dark=getComputedStyle(d).colorScheme==="dark";d.dataset.theme=dark?"light":"dark";try{localStorage.setItem(KEY+"_theme",d.dataset.theme)}catch(e){}};
+// Bild einfügen: wird auf max. 900px verkleinert, damit der LocalStorage nicht überläuft
+$("#imgIn").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{const im=new Image();im.onload=()=>{const s=Math.min(1,900/im.width),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;
+    c.getContext("2d").drawImage(im,0,0,c.width,c.height);mod().images.push({src:c.toDataURL("image/jpeg",.8),w:60,al:"center"});save();render()};im.src=r.result};
+  r.readAsDataURL(f);e.target.value=""};
+$("#imp").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.modules)throw 0;S=d;ui.mi=0;save();render()}catch(x){alert("Ungültige Datei.")}};r.readAsText(f);e.target.value=""};
+render();
+</script>
+</body>
+</html>
